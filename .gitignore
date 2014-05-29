@@ -1,0 +1,11 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/MDLd/bin/Debug
+/MDLd/obj/x86/Debug
+/MDLFileReaderWriter.MDLFile/bin/Debug
+/MDLFileReaderWriter.MDLFile/obj/Debug
+/TestMDLFileLoad/bin/Debug
+/TestMDLFileLoad/obj/Debug
+/MDLFileReaderWriter.v12.suo
