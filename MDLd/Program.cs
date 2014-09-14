@@ -19,6 +19,7 @@ namespace MDLd
                 || args.Any(x => x.ToLower().Contains("/?")))
             {
                 WriteUsage();
+                return;
             }
             // check parameters
             Stream input = null;
@@ -60,7 +61,7 @@ namespace MDLd
 
         private static void WriteUsage()
         {
-            Console.WriteLine("Usage: (/file=PathToFile | [/stdin]) (/out=PathToOutput | [/stdout] )");
+            Console.WriteLine("Usage: (/file=PathToFile | /stdin) (/out=PathToOutput | /stdout)");
         }
     }
 }
