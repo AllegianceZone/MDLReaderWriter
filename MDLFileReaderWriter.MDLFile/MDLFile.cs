@@ -128,6 +128,78 @@ namespace MDLFileReaderWriter.MDLFile
             return sb.ToString();
         }
 
+        public enum OutFormat
+        {
+            TextMdl,
+            WaveFront_Obj
+        }
+
+        public string ToString(OutFormat format)
+        {
+            switch (format)
+            {
+                case OutFormat.TextMdl:
+                    return this.ToString();
+                case OutFormat.WaveFront_Obj:
+                    return this.ToObj();
+                default:
+                    return this.ToString();
+            }
+        }
+        public string ToObj()
+        {
+            var sb = new StringBuilder();
+
+            //if (NameSpaces != null)
+            //    foreach (var item in NameSpaces)
+            //    {
+            //        sb.AppendLine(string.Format("use \"{0}\";", item.Str));
+            //    }
+
+            for (int j = 0; Objects != null && j < Objects.Length; j++)
+            {
+                var ob = Objects[j];
+                //if (ob is LightsGeo)
+                //{
+                //    var lg = (LightsGeo)ob;
+                //    sb.AppendLine("lights = LightsGeo([");
+                //    for (int i = 0; i < lg.Lights.Length; i++)
+                //    {
+                //        var item = lg.Lights[i];
+                //        sb.AppendLine(string.Format("(Color({0}, {1}, {2}),Vector({3},{4},{5}),{6},{7},{8},{9},{10}){11}", item.red, item.green, item.blue
+                //            , item.posx.ToString("R"), item.posy.ToString("R"), item.posz.ToString("R")
+                //            , item.speed.ToString("R"), item.todo1.ToString("R"), item.todo2.ToString("R"), item.todo3.ToString("R"), item.todo5.ToString("R")
+                //            , i == lg.Lights.Length - 1 ? "" : ","));
+                //    }
+                //    sb.AppendLine("]);");
+                //}
+
+                //if (ob is FrameData)
+                //{
+                //    var fd = (FrameData)ob;
+                //    sb.AppendLine("frames = FrameData([");
+                //    for (int i = 0; i < fd.Datas.Length; i++)
+                //    {
+                //        var item = fd.Datas[i];
+                //        sb.AppendLine(string.Format("(\"{0}\",Vector({1},{2},{3}),Vector({4},{5},{6}),Vector({7},{8},{9})){10}", item.Name
+                //        , item.posx.ToString("R"), item.posy.ToString("R"), item.posz.ToString("R")
+                //        , item.px.ToString("R"), item.py.ToString("R"), item.pz.ToString("R")
+                //        , item.nx.ToString("R"), item.ny.ToString("R"), item.nz.ToString("R")
+                //        , i == fd.Datas.Length - 1 ? "" : ","));
+                //    }
+                //    sb.AppendLine("]);");
+                //}
+
+                if (isGeo(ob))
+                {
+                    sb.AppendLine(getGeoTextObjFormat(ob));
+                }
+
+            }
+
+            return sb.ToString();
+        }
+
         private bool isGeo(object ob)
         {
             return ob is LODGeos
@@ -218,6 +290,101 @@ namespace MDLFileReaderWriter.MDLFile
                 }
 
                // sb.AppendFormat(")");
+            }
+            sb.AppendLine();
+            return sb.ToString();
+        }
+
+        private string getGeoTextObjFormat(object geo)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine();
+            if (geo is MeshGeo)
+            {
+
+                var mesh = (MeshGeo)geo;
+                // Verticies
+                for (int p = 0; p < mesh.Vertices.Length; p++)
+                {
+                    var item = mesh.Vertices[p];
+                    sb.AppendFormat("v {0} {1} {2}\r\n", item.x.ToString("R"), item.y.ToString("R"), item.z.ToString("R"), item.nx.ToString("R"), item.ny.ToString("R"), item.nz.ToString("R"), item.u.ToString("R"), item.v.ToString("R"), p == mesh.Vertices.Length - 1 ? "" : ",");
+                }
+                // Texture Coordinates
+                for (int p = 0; p < mesh.Vertices.Length; p++)
+                {
+                    var item = mesh.Vertices[p];
+                    sb.AppendFormat("vt {0} {1}\r\n", item.u.ToString("R"), item.v.ToString("R"));
+                }
+
+                // Normals
+                for (int p = 0; p < mesh.Vertices.Length; p++)
+                {
+                    var item = mesh.Vertices[p];
+                    sb.AppendFormat("vn {0} {1}\r\n", item.nx.ToString("R"), item.ny.ToString("R"), item.nz.ToString("R"));
+                }
+
+                // Face Definitions
+                for (int p = 0; p < mesh.Faces.Length; p+=3)
+                {
+                    sb.AppendFormat("f {0} {1} {2}\r\n", mesh.Faces[p], mesh.Faces[p+1], mesh.Faces[p+2]);
+                }
+                
+
+            }
+
+            if (geo is TextureGeo)
+            {
+                var texGeo = (TextureGeo)geo;
+
+                sb.AppendFormat(getGeoTextObjFormat(texGeo.Mesh));
+            
+                //sb.AppendFormat(string.Format("ImportImage(\"{0}\",true)", texGeo.Texture.Name));
+               
+            }
+
+            //if (geo is GroupGeo)
+            //{
+            //    var gg = (GroupGeo)geo;
+            //    sb.AppendFormat("GroupGeo([");
+            //    for (int k = 0; k < gg.Geos.Count; k++)
+            //    {
+            //        sb.AppendFormat(getGeoText(gg.Geos[k]));
+            //        sb.Append(k == gg.Geos.Count - 1 ? "" : ",");
+            //    }
+            //    sb.AppendFormat("])");
+            //}
+
+            //if (geo is LODGeos)
+            //{
+            //    var lo = (LODGeos)geo;
+            //    sb.AppendFormat("LODGeo(");
+
+            //    sb.AppendFormat(getGeoText(lo.Geo));
+            //    sb.AppendFormat(",[");
+            //    for (int i = 0; i < lo.LODs.Count; i++)
+            //    {
+            //        var item = lo.LODs[i];
+            //        string geoText = getGeoText(item.Meshes);
+            //        sb.AppendFormat(string.Format(
+            //            "({0},{1}){2}"
+            //            , item.LOD.ToString("R")
+            //            , geoText
+            //            , i == lo.LODs.Count - 1 ? "" : ","
+            //            ));
+            //    }
+            //    sb.AppendFormat("])");
+            //}
+
+            if (geo is IList)
+            {
+                // sb.AppendFormat("(");
+
+                for (int k = 0; k < ((IList)geo).Count; k++)
+                {
+                    sb.AppendFormat(getGeoText(((IList)geo)[k]));
+                }
+
+                // sb.AppendFormat(")");
             }
             sb.AppendLine();
             return sb.ToString();

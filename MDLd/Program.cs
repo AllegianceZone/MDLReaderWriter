@@ -24,7 +24,8 @@ namespace MDLd
             // check parameters
             Stream input = null;
             Stream output = null;
-            
+            MDLFileReaderWriter.MDLFile.MDLFile.OutFormat outFormat = MDLFile.OutFormat.TextMdl;
+
             // assume stdin and stdout
             input = Console.OpenStandardInput();
             output = Console.OpenStandardOutput();
@@ -43,6 +44,16 @@ namespace MDLd
                         break;
                     case "stdout": output = Console.OpenStandardOutput();
                         break;
+                    case "format":
+                        if (split[1].Equals("textmdl", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            outFormat = MDLFile.OutFormat.TextMdl;
+                        }
+                        if (split[1].Equals("obj", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            outFormat = MDLFile.OutFormat.WaveFront_Obj;
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -51,7 +62,7 @@ namespace MDLd
             
             MDLFile mdl = new MDLFile();
             var readToEnd = mdl.Load(input);
-            var text = mdl.ToString();
+            var text = mdl.ToString(outFormat);
 
             using(var sw = new StreamWriter(output))
             {
