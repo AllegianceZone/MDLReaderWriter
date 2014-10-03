@@ -307,26 +307,26 @@ namespace MDLFileReaderWriter.MDLFile
                 for (int p = 0; p < mesh.Vertices.Length; p++)
                 {
                     var item = mesh.Vertices[p];
-                    sb.AppendFormat("v {0} {1} {2}\r\n", item.x.ToString("R"), item.y.ToString("R"), item.z.ToString("R"), item.nx.ToString("R"), item.ny.ToString("R"), item.nz.ToString("R"), item.u.ToString("R"), item.v.ToString("R"), p == mesh.Vertices.Length - 1 ? "" : ",");
+                    sb.AppendFormat("v {0} {1} {2}\n", item.x.ToString("0.000000"), item.y.ToString("0.000000"), item.z.ToString("0.000000"), item.nx.ToString("R"), item.ny.ToString("R"), item.nz.ToString("R"), item.u.ToString("R"), item.v.ToString("R"), p == mesh.Vertices.Length - 1 ? "" : ",");
                 }
                 // Texture Coordinates
                 for (int p = 0; p < mesh.Vertices.Length; p++)
                 {
                     var item = mesh.Vertices[p];
-                    sb.AppendFormat("vt {0} {1}\r\n", item.u.ToString("R"), item.v.ToString("R"));
+                    sb.AppendFormat("vt {0} {1}\n", item.u.ToString("0.000000"), item.v.ToString("0.000000"));
                 }
 
                 // Normals
                 for (int p = 0; p < mesh.Vertices.Length; p++)
                 {
                     var item = mesh.Vertices[p];
-                    sb.AppendFormat("vn {0} {1}\r\n", item.nx.ToString("R"), item.ny.ToString("R"), item.nz.ToString("R"));
+                    sb.AppendFormat("vn {0} {1}\n", item.nx.ToString("0.000000"), item.ny.ToString("0.000000"), item.nz.ToString("0.000000"));
                 }
 
                 // Face Definitions
                 for (int p = 0; p < mesh.Faces.Length; p+=3)
                 {
-                    sb.AppendFormat("f {0} {1} {2}\r\n", mesh.Faces[p], mesh.Faces[p+1], mesh.Faces[p+2]);
+                    sb.AppendFormat("f {0} {1} {2}\n", mesh.Faces[p], mesh.Faces[p + 1], mesh.Faces[p + 2]);
                 }
                 
 
