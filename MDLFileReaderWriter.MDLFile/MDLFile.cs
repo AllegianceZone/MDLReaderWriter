@@ -365,14 +365,10 @@ namespace MDLFileReaderWriter.MDLFile
             {
                 var texGeo = (TextureGeo)geo;
 
-
                 sb.AppendFormat(string.Format("mtllib {0}.mtl" + Environment.NewLine, texGeo.Texture.Name));
                 sb.AppendFormat(string.Format("usemtl {0}" + Environment.NewLine, texGeo.Texture.Name));
 
                 sb.AppendFormat(getGeoTextObjFormat(texGeo.Mesh));
-            
-                
-               
             }
 
             //if (geo is GroupGeo)
@@ -407,7 +403,17 @@ namespace MDLFileReaderWriter.MDLFile
             //    }
             //    sb.AppendFormat("])");
             //}
+            if(geo is LODGeos)
+            {
+                var lod = (LODGeos)geo ;
+                if(lod.Geo is GroupGeo)
+                {
+                    var gp = (GroupGeo)lod.Geo;
+                    var txg = (TextureGeo)gp.Geos.First(x => x is TextureGeo);
+                    sb.Append( getGeoTextObjFormat(txg) );
+                }
 
+            }
             if (geo is IList)
             {
                 // sb.AppendFormat("(");
