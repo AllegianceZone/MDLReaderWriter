@@ -7,6 +7,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Drawing;
 using System.Collections;
+using System.Drawing.Imaging;
 
 namespace MDLFileReaderWriter.MDLFile
 {
@@ -131,7 +132,8 @@ namespace MDLFileReaderWriter.MDLFile
         public enum OutFormat
         {
             TextMdl,
-            WaveFront_Obj
+            WaveFront_Obj,
+            WaveFront_Mtl
         }
 
         public string ToString(OutFormat format)
@@ -142,6 +144,8 @@ namespace MDLFileReaderWriter.MDLFile
                     return this.ToString();
                 case OutFormat.WaveFront_Obj:
                     return this.ToObj();
+                case OutFormat.WaveFront_Mtl:
+                    return this.ToObjMtl();
                 default:
                     return this.ToString();
             }
@@ -196,6 +200,28 @@ namespace MDLFileReaderWriter.MDLFile
                 {
 
                     sb.AppendLine(getGeoTextObjFormat(ob));
+                }
+
+            }
+
+            return sb.ToString();
+        }
+
+        public string ToObjMtl()
+        {
+            var sb = new StringBuilder();
+            sb.AppendFormat("# Wavefront MTL created with Allegiance Zone MDLd.exe {0}" + Environment.NewLine, DateTime.Now.ToShortDateString());
+
+            for (int j = 0; Objects != null && j < Objects.Length; j++)
+            {
+                var ob = Objects[j];
+
+                if (ob is Bitmap)
+                {
+                    var img = ob as Bitmap;
+                    sb.AppendFormat("newmtl {0}"+Environment.NewLine,MtlName);
+                    sb.AppendFormat("map_Kd {0}.png" + Environment.NewLine, MtlName);
+                    img.Save(Path.Combine(MtlPath, string.Format("{0}.png",MtlName)), ImageFormat.Png);
                 }
 
             }
@@ -1013,6 +1039,10 @@ namespace MDLFileReaderWriter.MDLFile
             fdata.Datas = ReadStruct<Data>(fs, fdata.Count);
             return fdata;
         }
+
+        public string MtlName { get; set; }
+
+        public string MtlPath { get; set; }
     }
 
 }
