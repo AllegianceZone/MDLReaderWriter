@@ -150,6 +150,8 @@ namespace MDLFileReaderWriter.MDLFile
         {
             var sb = new StringBuilder();
             sb.AppendFormat("# Wavefront OBJ created with Allegiance Zone MDLd.exe {0}" +Environment.NewLine, DateTime.Now.ToShortDateString());
+            
+            
             //if (NameSpaces != null)
             //    foreach (var item in NameSpaces)
             //    {
@@ -314,7 +316,7 @@ namespace MDLFileReaderWriter.MDLFile
                 for (int p = 0; p < mesh.Vertices.Length; p++)
                 {
                     var item = mesh.Vertices[p];
-                    sb.AppendFormat("vt {0} {1}" + Environment.NewLine, item.u.ToString("0.000000"), item.v.ToString("0.000000"));
+                    sb.AppendFormat("vt {0} {1}" + Environment.NewLine, (1f-item.u).ToString("0.000000"), (1f-item.v).ToString("0.000000"));
                 }
 
                 // Normals
@@ -327,7 +329,7 @@ namespace MDLFileReaderWriter.MDLFile
                 // Face Definitions
                 for (int p = 0; p < mesh.Faces.Length; p+=3)
                 {
-                    sb.AppendFormat("f {0} {1} {2}" + Environment.NewLine, mesh.Faces[p] + 1, mesh.Faces[p + 1] + 1, mesh.Faces[p + 2] + 1);
+                    sb.AppendFormat("f {0}/{0}/{0} {1}/{1}/{1} {2}/{2}/{2}" + Environment.NewLine, mesh.Faces[p] + 1, mesh.Faces[p + 1] + 1, mesh.Faces[p + 2] + 1);
                 }
                 
 
@@ -337,9 +339,13 @@ namespace MDLFileReaderWriter.MDLFile
             {
                 var texGeo = (TextureGeo)geo;
 
+
+                sb.AppendFormat(string.Format("mtllib {0}.mtl" + Environment.NewLine, texGeo.Texture.Name));
+                sb.AppendFormat(string.Format("usemtl {0}" + Environment.NewLine, texGeo.Texture.Name));
+
                 sb.AppendFormat(getGeoTextObjFormat(texGeo.Mesh));
             
-                //sb.AppendFormat(string.Format("ImportImage(\"{0}\",true)", texGeo.Texture.Name));
+                
                
             }
 
