@@ -1,5 +1,8 @@
+[![allegiancezone-mdlreaderwriter MyGet Build Status](https://www.myget.org/BuildSource/Badge/allegiancezone-mdlreaderwriter?identifier=44426755-6d75-44da-b208-fdfc6bb308b4)](https://www.myget.org/)
+
 MDLReaderWriter
 ===============
+
 
 Example usage to convert an allegiance model and its texture to a lightwave Obj
 
