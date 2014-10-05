@@ -17,5 +17,8 @@
 		<file src="bin\$configuration$\*.exe" target="lib\net40\" />
 		<file src="bin\$configuration$\*.dll" target="lib\net40\" />
 		<file src="bin\$configuration$\*.pdb" target="lib\net40\" />
+		<file src="bin\$configuration$\*.exe" target="lib\net40-Client\" />
+		<file src="bin\$configuration$\*.dll" target="lib\net40-Client\" />
+		<file src="bin\$configuration$\*.pdb" target="lib\net40-Client\" />
   </files>
 </package>
