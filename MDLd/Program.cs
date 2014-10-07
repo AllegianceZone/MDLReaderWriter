@@ -40,12 +40,13 @@ namespace MDLd
                 switch (split[0].ToLower().Substring(1))
                 {
                     case "file": input = File.Open(inFile=split[1], FileMode.Open, FileAccess.Read);
-                        if (outFormat == MDLFile.OutFormat.WaveFront_Mtl){
+                        if (outFormat == MDLFile.OutFormat.Collada)
+                        {
                             mtlName = Path.GetFileNameWithoutExtension(inFile);
                         }
                         break;
                     case "out": output = File.Create(outFile = split[1]);
-                        if (outFormat == MDLFile.OutFormat.WaveFront_Mtl)
+                        if (outFormat == MDLFile.OutFormat.Collada)
                         {
                             mtlPath = Path.GetDirectoryName(outFile);
                         }
@@ -59,18 +60,15 @@ namespace MDLd
                         {
                             outFormat = MDLFile.OutFormat.TextMdl;
                         }
-                        if (split[1].Equals("obj", StringComparison.CurrentCultureIgnoreCase))
+                        if (split[1].Equals("dae", StringComparison.CurrentCultureIgnoreCase))
                         {
-                            outFormat = MDLFile.OutFormat.WaveFront_Obj;
-                        }
-                        if (split[1].Equals("mtl", StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            outFormat = MDLFile.OutFormat.WaveFront_Mtl;
+                            outFormat = MDLFile.OutFormat.Collada;
                             if (string.IsNullOrEmpty(mtlPath))
                             {
                                 mtlPath = Path.GetDirectoryName(outFile);
                             }
-                            if (string.IsNullOrEmpty(mtlName)){
+                            if (string.IsNullOrEmpty(mtlName))
+                            {
                                 mtlName = Path.GetFileNameWithoutExtension(inFile);
                             }
                         }
@@ -86,7 +84,7 @@ namespace MDLd
             mdl.MtlName = mtlName;
             mdl.MtlPath = mtlPath;
             var text = mdl.ToString(outFormat);
-            using(var sw = new StreamWriter(output))
+            using(var sw = new StreamWriter(output,Encoding.UTF8))
             {
                 sw.Write(text);
             }
