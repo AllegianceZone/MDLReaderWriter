@@ -9,3 +9,8 @@
 /TestMDLFileLoad/bin/Debug
 /TestMDLFileLoad/obj/Debug
 /MDLFileReaderWriter.v12.suo
+/MDLd/bin/Release
+/MDLd/obj/x86/Release
+/MDLFileReaderWriter.MDLFile/bin/Release
+/MDLFileReaderWriter.MDLFile/obj/Release
+/TestMDLFileLoad/obj/Release
