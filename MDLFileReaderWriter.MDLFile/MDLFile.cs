@@ -167,8 +167,8 @@ namespace MDLFileReaderWriter.MDLFile
                                 ),
                             new XElement(x + "created", DateTime.Now.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")),
                             new XElement(x + "modified", DateTime.Now.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")),
-                           new XElement(x + "unit", new XAttribute("name","meter"), new XAttribute("meter","0.1")),
-                           new XElement(x + "up_axis", "Z_UP"));
+                           new XElement(x + "unit", new XAttribute("name","meter"), new XAttribute("meter","1")),
+                           new XElement(x + "up_axis", "Y_UP"));
             xe.Add(asset);
 
 
@@ -308,8 +308,13 @@ namespace MDLFileReaderWriter.MDLFile
             xe.Add(library_materials);
 
             var libGeo = new XElement(x + "library_geometries");
-            foreach (var geo in Objects.Where(_ => _ is MeshGeo || _ is GroupGeo || _ is LODGeo || _ is LODGeos))
+            foreach (var geo in Objects.Where(_ => _ is TextureGeo || _ is MeshGeo || _ is GroupGeo || _ is LODGeo || _ is LODGeos))
             {
+                if (geo is TextureGeo)
+                {
+                    var _t = (TextureGeo)geo;
+                    libGeo.Add(ExportMeshGeoCollada(x, _t.Mesh, "FOO" + "-mesh"));
+                }
                 if (geo is LODGeos)
                 {
                     var lodGeos = (LODGeos)geo;
@@ -321,12 +326,12 @@ namespace MDLFileReaderWriter.MDLFile
                             if (g is MeshGeo)
                             {
                                 var _g = (MeshGeo)g;
-                                libGeo.Add(ExportMeshGeoCollada(x, _g, "FOO" + Next()));
+                                libGeo.Add(ExportMeshGeoCollada(x, _g, "FOO" + "-mesh"));
                             }
                             if (g is TextureGeo)
                             {
                                 var _t = (TextureGeo)g;
-                                libGeo.Add(ExportMeshGeoCollada(x, _t.Mesh, "BAR" + Next()));
+                                libGeo.Add(ExportMeshGeoCollada(x, _t.Mesh, "FOO" + "-mesh"));
 
                                 // add the texture
 
@@ -345,12 +350,12 @@ namespace MDLFileReaderWriter.MDLFile
                             if (mesh is MeshGeo)
                             {
                                 var mes = (MeshGeo)mesh;
-                                libGeo.Add(ExportMeshGeoCollada(x, mes, "Baz" + Next()));
+                                libGeo.Add(ExportMeshGeoCollada(x, mes, "FOO" + "-mesh"));
                             }
                             if (mesh is TextureGeo)
                             {
                                 var _t = (TextureGeo)mesh;
-                                libGeo.Add(ExportMeshGeoCollada(x, _t.Mesh, "Jaz" + Next()));
+                                libGeo.Add(ExportMeshGeoCollada(x, _t.Mesh, "FOO" + "-mesh"));
                                 // add the texture
                             }
                         }
@@ -370,14 +375,14 @@ namespace MDLFileReaderWriter.MDLFile
 
             var library_visual_scenes = new XElement(x + "library_visual_scenes",
                 new XElement(x + "visual_scene", new XAttribute("id", "Scene"), new XAttribute("name", "Scene"),
-                    new XElement(x+"node", new XAttribute("id","Camera"),new XAttribute("name","Camera"),new XAttribute("type","NODE"),
-                        new XElement(x+"matrix", new XAttribute("sid","transform"), "0.6858805 -0.3173701 0.6548619 7.481132 0.7276338 0.3124686 -0.6106656 -6.50764 -0.01081678 0.8953432 0.4452454 5.343665 0 0 0 1"),
-                        new XElement(x+"instance_camera", new XAttribute("url","#Camera-camera"))
-                        ),
-                    new XElement(x + "node", new XAttribute("id", "Lamp"), new XAttribute("name", "Lamp"), new XAttribute("type", "NODE"),
-                        new XElement(x + "matrix", new XAttribute("sid", "transform"), "-0.2908646 -0.7711008 0.5663932 4.076245 0.9551712 -0.1998834 0.2183912 1.005454 -0.05518906 0.6045247 0.7946723 5.903862 0 0 0 1"),
-                        new XElement(x + "instance_light", new XAttribute("url", "#Lamp-light"))
-                        ),
+                    //new XElement(x+"node", new XAttribute("id","Camera"),new XAttribute("name","Camera"),new XAttribute("type","NODE"),
+                    //    new XElement(x+"matrix", new XAttribute("sid","transform"), "0.6858805 -0.3173701 0.6548619 7.481132 0.7276338 0.3124686 -0.6106656 -6.50764 -0.01081678 0.8953432 0.4452454 5.343665 0 0 0 1"),
+                    //    new XElement(x+"instance_camera", new XAttribute("url","#Camera-camera"))
+                    //    ),
+                    //new XElement(x + "node", new XAttribute("id", "Lamp"), new XAttribute("name", "Lamp"), new XAttribute("type", "NODE"),
+                    //    new XElement(x + "matrix", new XAttribute("sid", "transform"), "-0.2908646 -0.7711008 0.5663932 4.076245 0.9551712 -0.1998834 0.2183912 1.005454 -0.05518906 0.6045247 0.7946723 5.903862 0 0 0 1"),
+                    //    new XElement(x + "instance_light", new XAttribute("url", "#Lamp-light"))
+                    //    ),
                     new XElement(x + "node", new XAttribute("id", "FirstExport"), new XAttribute("name", "FirstExport"), new XAttribute("type", "NODE"),
                                     new XElement(x + "matrix", new XAttribute("sid", "transform"), "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"),
                                     new XElement(x + "instance_geometry", new XAttribute("url", "#FOO-mesh"),
