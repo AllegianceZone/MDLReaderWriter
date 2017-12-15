@@ -25,8 +25,8 @@ namespace MDLFileReaderWriter.MDLFile
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public struct MeshGeo
     {
-        public Int32 CountVerticies;
-        public Int32 CountIndicies;
+        public Int32 CountVertices;
+        public Int32 CountIndices;
         public Vertex[] Vertices;
         public UInt16[] Faces;
     }
