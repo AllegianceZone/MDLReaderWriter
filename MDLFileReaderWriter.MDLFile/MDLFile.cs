@@ -267,7 +267,7 @@ namespace MDLFileReaderWriter.MDLFile
             xe.Add(library_lights);
 
             // Not valid for this to be empty
-            //var library_images = new XElement(x + "library_images");
+            var library_images = new XElement(x + "library_images");
             //xe.Add(library_images);
 
             var library_effects = new XElement(x + "library_effects",
@@ -308,91 +308,21 @@ namespace MDLFileReaderWriter.MDLFile
             xe.Add(library_materials);
 
             var libGeo = new XElement(x + "library_geometries");
-            foreach (var geo in Objects.Where(_ => _ is TextureGeo || _ is MeshGeo || _ is GroupGeo || _ is LODGeo || _ is LODGeos))
-            {
-                if (geo is TextureGeo)
-                {
-                    var _t = (TextureGeo)geo;
-                    libGeo.Add(ExportMeshGeoCollada(x, _t.Mesh, "FOO" + "-mesh"));
-                }
-                if (geo is LODGeos)
-                {
-                    var lodGeos = (LODGeos)geo;
-                    if (lodGeos.Geo is GroupGeo)
-                    {
-                        var gg = (GroupGeo)lodGeos.Geo;
-                        foreach(var g in gg.Geos)
-                        {
-                            if (g is MeshGeo)
-                            {
-                                var _g = (MeshGeo)g;
-                                libGeo.Add(ExportMeshGeoCollada(x, _g, "FOO" + "-mesh"));
-                            }
-                            if (g is TextureGeo)
-                            {
-                                var _t = (TextureGeo)g;
-                                libGeo.Add(ExportMeshGeoCollada(x, _t.Mesh, "FOO" + "-mesh"));
-
-                                // add the texture
-
-
-                            }
-                        }
-                    }
-
-
-                    for(int i =0; i< lodGeos.LODs.Count; i++)
-                    {
-                        var item = lodGeos.LODs[i];
-                        for (int j = 0; j < item.Meshes.Count; j++)
-                        {
-                            var mesh = item.Meshes[j];
-                            if (mesh is MeshGeo)
-                            {
-                                var mes = (MeshGeo)mesh;
-                                libGeo.Add(ExportMeshGeoCollada(x, mes, "FOO" + "-mesh"));
-                            }
-                            if (mesh is TextureGeo)
-                            {
-                                var _t = (TextureGeo)mesh;
-                                libGeo.Add(ExportMeshGeoCollada(x, _t.Mesh, "FOO" + "-mesh"));
-                                // add the texture
-                            }
-                        }
-                    }
-                }
-                if (geo is MeshGeo)
-                {
-                    libGeo.Add(ExportMeshGeoCollada(x, (MeshGeo)geo, "FOO"+"-mesh"));
-                }
-            }
             xe.Add(libGeo);
-            
+
             // Not valid for this to be empty
             // var library_controllers = new XElement(x + "library_controllers");
             // xe.Add(library_controllers);
 
+            var visual_scene = new XElement(x + "visual_scene", new XAttribute("id", "Scene"), new XAttribute("name", "Scene"));
+            var library_visual_scenes = new XElement(x + "library_visual_scenes", visual_scene);
 
-            var library_visual_scenes = new XElement(x + "library_visual_scenes",
-                new XElement(x + "visual_scene", new XAttribute("id", "Scene"), new XAttribute("name", "Scene"),
-                    //new XElement(x+"node", new XAttribute("id","Camera"),new XAttribute("name","Camera"),new XAttribute("type","NODE"),
-                    //    new XElement(x+"matrix", new XAttribute("sid","transform"), "0.6858805 -0.3173701 0.6548619 7.481132 0.7276338 0.3124686 -0.6106656 -6.50764 -0.01081678 0.8953432 0.4452454 5.343665 0 0 0 1"),
-                    //    new XElement(x+"instance_camera", new XAttribute("url","#Camera-camera"))
-                    //    ),
-                    //new XElement(x + "node", new XAttribute("id", "Lamp"), new XAttribute("name", "Lamp"), new XAttribute("type", "NODE"),
-                    //    new XElement(x + "matrix", new XAttribute("sid", "transform"), "-0.2908646 -0.7711008 0.5663932 4.076245 0.9551712 -0.1998834 0.2183912 1.005454 -0.05518906 0.6045247 0.7946723 5.903862 0 0 0 1"),
-                    //    new XElement(x + "instance_light", new XAttribute("url", "#Lamp-light"))
-                    //    ),
-                    new XElement(x + "node", new XAttribute("id", "FirstExport"), new XAttribute("name", "FirstExport"), new XAttribute("type", "NODE"),
-                                    new XElement(x + "matrix", new XAttribute("sid", "transform"), "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"),
-                                    new XElement(x + "instance_geometry", new XAttribute("url", "#FOO-mesh"),
-                                        new XElement(x+"bind_material",
-                                            new XElement(x+"technique_common",
-                                                new XElement(x+"instance_material", new XAttribute("symbol","Material-material"), new XAttribute("target","#Material-material"))
-                                            )
-                                        )
-                                    )
-                                )));
+            int index = 0;
+            foreach (var geo in Objects.Where(_ => _ is TextureGeo || _ is MeshGeo || _ is GroupGeo || _ is LODGeo || _ is LODGeos))
+            {
+                AddGeoToCollada(geo, visual_scene, libGeo, library_images, ref index);
+                index += 1;
+            }
 
             xe.Add(library_visual_scenes);
             var scene = new XElement(x + "scene",
@@ -400,99 +330,96 @@ namespace MDLFileReaderWriter.MDLFile
                                 );
             xe.Add(scene);
             return @"<?xml version=""1.0"" encoding=""utf-8""?>"+Environment.NewLine + xd.ToString();
-            //if (Objects.Any(_ => _ is LightsGeo))
-            //{
-            //    // need to build a mtl files for lights.
-            //    var mtlLightsLib = MtlName + "lights.mtl";
-            //    var lightsMtl = new StringBuilder();
-            //    sb.AppendFormat("mtllib {0}" + Environment.NewLine, mtlLightsLib);
-            //    //sb.AppendLine("o alleglight");
-            //    foreach (var geo in Objects.Where(_ => _ is LightsGeo).Select(_=> (LightsGeo)_))
-            //    {
-
-            //        //    var lg = (LightsGeo)ob;
-            //        //    sb.AppendLine("lights = LightsGeo([");
-            //        for (int i = 0; i < geo.Lights.Length; i++)
-            //        {
-            //            var item = geo.Lights[i];
-            //             // Material name statement:
-            //             //       newmtl my_mtl
-                        
-            //            //lightsMtl.AppendFormat("newmtl light_{0}" + Environment.NewLine, i);
-            //            // see http://paulbourke.net/dataformats/mtl/ for examples, search for "shiny_green"
-            //             //Material color and illumination statements:
-            //             //       Ka 0.0435 0.0435 0.0435
-            //             //       Kd 0.1086 0.1086 0.1086
-            //             //       Ks 0.0000 0.0000 0.0000
-            //             //       Tf 0.9885 0.9885 0.9885
-            //             //       illum 6
-            //             //       d -halo 0.6600
-            //             //       Ns 10.0000
-            //             //       sharpness 60
-            //             //       Ni 1.19713
-            //            //lightsMtl.AppendFormat("Kd {0} {1} {2}" + Environment.NewLine, item.red.ToString("0.000000"), item.green.ToString("0.000000"), item.blue.ToString("0.000000"));
-            //            //lightsMtl.AppendFormat("Ns 200.000" + Environment.NewLine);
-            //            //lightsMtl.AppendFormat("illum 1"+Environment.NewLine);
-                        
-            //            sb.AppendFormat("usemtl light_{0}"+Environment.NewLine, i);
-            //            sb.AppendFormat("o alleglight_{0}" + Environment.NewLine, i);
-            //            sb.AppendFormat("v {0} {1} {2}" + Environment.NewLine, item.posx.ToString("0.000000"),
-            //                item.posy.ToString("R"),
-            //                item.posz.ToString("R"));
-            //            sb.AppendFormat("p {0}" + Environment.NewLine, i+629);
-            //            sb.AppendLine();
-            //            //sb.AppendLine(string.Format("(Color({0}, {1}, {2}),Vector({3},{4},{5}),{6},{7},{8},{9},{10}){11}", item.red, item.green, item.blue
-            //            //    , item.posx.ToString("R"), item.posy.ToString("R"), item.posz.ToString("R")
-            //            //    , item.speed.ToString("R"), item.todo1.ToString("R"), item.todo2.ToString("R"), item.todo3.ToString("R"), item.todo5.ToString("R")
-            //            //    , i == geo.Lights.Length - 1 ? "" : ","));
-            //        }
-            //        //    sb.AppendLine("]);");
-            //    }
-
-            //    File.WriteAllText(Path.Combine(MtlPath, mtlLightsLib), lightsMtl.ToString());
-            //}
-                //if (ob is FrameData)
-                //{
-                //    var fd = (FrameData)ob;
-                //    sb.AppendLine("frames = FrameData([");
-                //    for (int i = 0; i < fd.Datas.Length; i++)
-                //    {
-                //        var item = fd.Datas[i];
-                //        sb.AppendLine(string.Format("(\"{0}\",Vector({1},{2},{3}),Vector({4},{5},{6}),Vector({7},{8},{9})){10}", item.Name
-                //        , item.posx.ToString("R"), item.posy.ToString("R"), item.posz.ToString("R")
-                //        , item.px.ToString("R"), item.py.ToString("R"), item.pz.ToString("R")
-                //        , item.nx.ToString("R"), item.ny.ToString("R"), item.nz.ToString("R")
-                //        , i == fd.Datas.Length - 1 ? "" : ","));
-                //    }
-                //    sb.AppendLine("]);");
-                //}
-
-
-
-
-            
         }
 
-        public string ToObjMtl()
+        public void AddGeoToCollada(Object geo, XElement scene, XElement libGeo, XElement libImg,ref int index)
         {
-            var sb = new StringBuilder();
-            sb.AppendFormat("# Wavefront MTL created with Allegiance Zone MDLd.exe {0}" + Environment.NewLine, DateTime.Now.ToShortDateString());
-
-            for (int j = 0; Objects != null && j < Objects.Length; j++)
+            //new XElement(x+"node", new XAttribute("id","Camera"),new XAttribute("name","Camera"),new XAttribute("type","NODE"),
+            //    new XElement(x+"matrix", new XAttribute("sid","transform"), "0.6858805 -0.3173701 0.6548619 7.481132 0.7276338 0.3124686 -0.6106656 -6.50764 -0.01081678 0.8953432 0.4452454 5.343665 0 0 0 1"),
+            //    new XElement(x+"instance_camera", new XAttribute("url","#Camera-camera"))
+            //    ),
+            //new XElement(x + "node", new XAttribute("id", "Lamp"), new XAttribute("name", "Lamp"), new XAttribute("type", "NODE"),
+            //    new XElement(x + "matrix", new XAttribute("sid", "transform"), "-0.2908646 -0.7711008 0.5663932 4.076245 0.9551712 -0.1998834 0.2183912 1.005454 -0.05518906 0.6045247 0.7946723 5.903862 0 0 0 1"),
+            //    new XElement(x + "instance_light", new XAttribute("url", "#Lamp-light"))
+            //    ),
+            index += 1;
+            var id = "id-" + index;
+            XNamespace x = "http://www.collada.org/2005/11/COLLADASchema";
+            if (geo is TextureGeo)
             {
-                var ob = Objects[j];
-
-                if (ob is Bitmap)
+                var localId = "TextureGeo" + index;
+                var newScene = new XElement(x + "node", new XAttribute("id", localId), new XAttribute("name", localId), new XAttribute("type", "NODE"),
+                            new XElement(x + "matrix", new XAttribute("sid", "transform"), "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"),
+                            new XElement(x + "instance_geometry", new XAttribute("url", "#id-" + index),
+                                new XElement(x + "bind_material",
+                                    new XElement(x + "technique_common",
+                                        new XElement(x + "instance_material", new XAttribute("symbol", "Material-material"), new XAttribute("target", "#Material-material"))
+                                    )
+                                )
+                            )
+                        );
+                scene.Add(newScene);
+                var _t = (TextureGeo)geo;
+                libGeo.Add(ExportMeshGeoCollada(x, _t.Mesh, id));
+            } else if (geo is MeshGeo)
+            {
+                var localId = "MeshGeo" + index;
+                var newScene = new XElement(x + "node", new XAttribute("id", localId), new XAttribute("name", localId), new XAttribute("type", "NODE"),
+                            new XElement(x + "matrix", new XAttribute("sid", "transform"), "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"),
+                            new XElement(x + "instance_geometry", new XAttribute("url", "#id-" + index),
+                                new XElement(x + "bind_material",
+                                    new XElement(x + "technique_common",
+                                        new XElement(x + "instance_material", new XAttribute("symbol", "Material-material"), new XAttribute("target", "#Material-material"))
+                                    )
+                                )
+                            )
+                        );
+                scene.Add(newScene);
+                libGeo.Add(ExportMeshGeoCollada(x, (MeshGeo)geo, id));
+            } else if (geo is GroupGeo)
+            {
+                var localId = "GroupGeo" + index;
+                var newScene = new XElement(x + "node", new XAttribute("id", localId), new XAttribute("name", localId), new XAttribute("type", "NODE"));
+                scene.Add(newScene);
+                var gg = ((GroupGeo)geo);
+                foreach (var g in gg.Geos)
                 {
-                    var img = ob as Bitmap;
-                    sb.AppendFormat("newmtl {0}"+Environment.NewLine,MtlName);
-                    sb.AppendFormat("map_Kd {0}.png" + Environment.NewLine, MtlName);
-                    img.Save(Path.Combine(MtlPath, string.Format("{0}.png",MtlName)), ImageFormat.Png);
+                    AddGeoToCollada(g, newScene, libGeo, libImg, ref index);
                 }
+            } else if (geo is LODGeo)
+            {
+                var localId = "LODGeo" + index;
+                var lodg = (LODGeo)geo;
+                var newScene = new XElement(x + "node", new XAttribute("id", localId), new XAttribute("name", localId), new XAttribute("type", "NODE"), new XAttribute("layer", "LOD-" + lodg.LOD));
+                scene.Add(newScene);
 
+                for (int j = 0; j < lodg.Meshes.Count; j++)
+                {
+                    index += 1;
+                    id = "id-" + index;
+                    var mesh = lodg.Meshes[j];
+                    AddGeoToCollada(mesh, newScene, libGeo, libImg, ref index);
+                }
+            } else if (geo is LODGeos)
+            {
+                var localId = "LODGeos" + index;
+                var lodGeos = (LODGeos)geo;
+                var newScene = new XElement(x + "node", new XAttribute("id", localId), new XAttribute("name", localId), new XAttribute("type", "NODE"));
+                scene.Add(newScene);
+
+                AddGeoToCollada(lodGeos.Geo, newScene, libGeo, libImg, ref index);
+
+                for (int i = 0; i < lodGeos.LODs.Count; i++)
+                {
+                    index += 1;
+                    id = "id-" + index;
+                    var item = lodGeos.LODs[i];
+                    AddGeoToCollada(item, newScene, libGeo, libImg, ref index);
+                }
+            } else
+            {
+                throw new NotImplementedException(String.Format("The type of geo was not handled. {0}", geo.GetType().ToString()));
             }
-
-            return sb.ToString();
         }
 
         private bool isGeo(object ob)
